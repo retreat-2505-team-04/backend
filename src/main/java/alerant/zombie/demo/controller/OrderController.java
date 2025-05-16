@@ -8,6 +8,7 @@ import alerant.zombie.demo.controller.dto.ZombieAssignmentDto;
 import alerant.zombie.demo.controller.mapper.OrderStatusMapper;
 import alerant.zombie.demo.dao.Order;
 import alerant.zombie.demo.dao.RiskAssessment;
+import alerant.zombie.demo.dao.Zombie;
 import alerant.zombie.demo.repository.EventLogRepository;
 import alerant.zombie.demo.repository.OrderRepository;
 import alerant.zombie.demo.repository.RiskAssessmentRepository;
@@ -56,26 +57,26 @@ public class OrderController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+
+
     @PatchMapping("/{orderId}/status")
     public ResponseEntity<Void> updateStatus(@PathVariable String orderId, @RequestBody StatusUpdateDto statusUpdateDto) {
-        boolean updated = orderRepository.updateStatus(orderId, statusUpdateDto.getStatus(), statusUpdateDto.getDescription());
+        boolean updated = orderRepository.updateStatus(orderId, statusUpdateDto.getStatus(), statusUpdateDto.getDescription()) > 0;
         if (updated) {
-            eventLogRepository.log("Státusz frissítve: " + orderId + " → " + statusUpdateDto.getStatus());
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.notFound().build();
         }
     }
-
     @PostMapping("/{orderId}/assign-zombie")
     public ResponseEntity<ZombieAssignmentDto> assignZombie(@PathVariable String orderId) {
-        Optional<Order> orderOpt = orderRepository.findById(orderId);
+        Optional<Order> orderOpt = orderRepository.findById(UUID.fromString(orderId));
         if (orderOpt.isEmpty()) return ResponseEntity.notFound().build();
-
-        ZombieAssignment assignment = zombieRepository.assignBestZombie(orderId);
-        eventLogRepository.log("Zombi hozzárendelve: " + assignment.getZombieId() + " → " + orderId);
+        Zombie assignment = zombieRepository.assignBestZombie(orderId);
+//        eventLogRepository.log("Zombi hozzárendelve: " + assignment.getId() + " → " + orderId);
         return ResponseEntity.ok(ZombieAssignmentDto.from(assignment));
     }
+
 
     @GetMapping("/{orderId}/risk")
     public ResponseEntity<RiskAssessmentDto> getRisk(@PathVariable String orderId) {

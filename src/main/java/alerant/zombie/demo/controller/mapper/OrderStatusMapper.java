@@ -31,7 +31,7 @@ public class OrderStatusMapper {
         dto.setRecipient(order.getRecipient());
         dto.setDescription(order.getDescription());
         dto.setDatetime(order.getDatetime().toString());
-        dto.setStatus(order.getStatus().name());
+        dto.setStatus(order.getStatus());
         return dto;
     }
 
