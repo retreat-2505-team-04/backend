@@ -1,0 +1,156 @@
+openapi: 3.0.3
+info:
+  title: AgyKurier Zombi Futár API
+  description: REST API a zombi futárszolgálat működtetéséhez
+  version: 1.0.0
+
+servers:
+  - url: https://zombi-logisztika.alerant.hu/api
+
+paths:
+  /orders:
+    post:
+      summary: Új rendelés létrehozása
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreate'
+      responses:
+        '201':
+          description: Rendelés sikeresen létrehozva
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+  
+  /orders/{orderId}:
+    get:
+      summary: Rendelés státusz lekérdezése
+      parameters:
+        - in: path
+          name: orderId
+          schema:
+            type: string
+          required: true
+          description: A rendelés azonosítója
+      responses:
+        '200':
+          description: Rendelés részletei
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+  /orders/{orderId}/status:
+    patch:
+      summary: Rendelés státusz frissítése
+      parameters:
+        - in: path
+          name: orderId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [Felvéve, Úton, Kézbesítve, Megrágva, Elveszett]
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Státusz frissítve
+
+  /orders/{orderId}/assign-zombie:
+    post:
+      summary: Zombi hozzárendelése a rendeléshez
+      parameters:
+        - in: path
+          name: orderId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Zombi sikeresen hozzárendelve
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZombieAssignment'
+
+  /orders/{orderId}/risk:
+    get:
+      summary: Megrágási kockázat lekérdezése
+      parameters:
+        - in: path
+          name: orderId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Kockázatelemzés eredménye
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskAssessment'
+
+components:
+  schemas:
+    OrderCreate:
+      type: object
+      required: [sender, recipient, description, datetime]
+      properties:
+        sender:
+          type: string
+        recipient:
+          type: string
+        description:
+          type: string
+        datetime:
+          type: string
+          format: date-time
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        sender:
+          type: string
+        recipient:
+          type: string
+        description:
+          type: string
+        datetime:
+          type: string
+          format: date-time
+        status:
+          type: string
+
+    ZombieAssignment:
+      type: object
+      properties:
+        zombie_id:
+          type: string
+        zombie_name:
+          type: string
+        suitability_score:
+          type: number
+          format: float
+
+    RiskAssessment:
+      type: object
+      properties:
+        risk_level:
+          type: string
+          enum: [Alacsony, Közepes, Magas]
+        explanation:
+          type: string
