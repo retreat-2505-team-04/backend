@@ -72,10 +72,9 @@ public class OrderController {
     public ResponseEntity<ZombieAssignmentDto> assignZombie(@PathVariable String orderId) {
         Optional<Order> orderOpt = orderRepository.findById(UUID.fromString(orderId));
         if (orderOpt.isEmpty()) return ResponseEntity.notFound().build();
-//        Zombie assignment = zombieRepository.assignBestZombie(orderId);
+        Zombie assignment = zombieRepository.assignBestZombie(UUID.fromString(orderId));
 //        eventLogRepository.log("Zombi hozzárendelve: " + assignment.getId() + " → " + orderId);
-//        return ResponseEntity.ok(ZombieAssignmentDto.from(assignment));
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ZombieAssignmentDto.from(assignment));
     }
 
 

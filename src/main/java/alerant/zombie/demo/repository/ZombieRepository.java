@@ -13,7 +13,7 @@ import java.util.UUID;
  */
 @Repository
 public interface ZombieRepository extends JpaRepository<Zombie, UUID> {
-    @Query("SELECT z FROM Zombie z WHERE z.available = true ORDER BY z.skillLevel DESC LIMIT 1")
-    Zombie assignBestZombie(@Param("orderId") String orderId);
+    @Query("SELECT z FROM Zombie z JOIN z.orders o WHERE o.id = :orderId ORDER BY z.energyLevel DESC LIMIT 1")
+    Zombie assignBestZombie(@Param("orderId") UUID orderId);
 }
 
