@@ -50,8 +50,9 @@ public class OrderController {
 
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDto> getOrder(@PathVariable String orderId) {
+        OrderStatusMapper orderStatusMapper = new OrderStatusMapper();
         return orderRepository.findById(UUID.fromString(orderId))
-                .map(order -> ResponseEntity.ok(OrderDto.from(order)))
+                .map(order -> ResponseEntity.ok(orderStatusMapper.toDto(order)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -78,8 +79,9 @@ public class OrderController {
 
     @GetMapping("/{orderId}/risk")
     public ResponseEntity<RiskAssessmentDto> getRisk(@PathVariable String orderId) {
-        Optional<RiskAssessment> risk = riskAssessmentRepository.assessRisk(orderId);
-        return risk.map(r -> ResponseEntity.ok(RiskAssessmentDto.from(r)))
+        OrderStatusMapper orderStatusMapper = new OrderStatusMapper();
+        Optional<RiskAssessment> risk = riskAssessmentRepository.findById(UUID.fromString(orderId));
+        return risk.map(r -> ResponseEntity.ok(orderStatusMapper.toDto(r)))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 }
